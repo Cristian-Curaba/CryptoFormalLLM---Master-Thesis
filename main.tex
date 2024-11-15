@@ -1,0 +1,263 @@
+\documentclass[a4paper,12pt,twoside,openany]{book}
+\usepackage[inner=3cm,outer=2cm, includefoot,heightrounded]{geometry}
+% Typographical rules for the English language
+\usepackage[english]{babel}
+
+
+% Font-related packages
+\usepackage[utf8]{inputenc}
+\usepackage{inconsolata}
+
+\usepackage{fancyhdr}
+\pagestyle{plain}
+\setlength{\headsep}{2em}
+\fancyhf{}
+\fancyfoot[LE,RO]{\thepage}
+
+% Needed to render the cover
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{todonotes}
+\usepackage{cite}
+\usepackage{textcomp}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{comment}
+\usepackage{fvextra}
+\usepackage{csquotes}
+\usepackage{mathtools}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{wasysym}
+\usepackage{chngpage}
+\usepackage{arydshln}
+\usepackage{dialogue}
+\usepackage{adjustbox}
+\usepackage{minted}
+\usepackage{enumitem}
+\usepackage{epigraph}
+\usepackage{spverbatim}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+
+\setlength{\unitlength}{1em}
+\newcommand\like[1]{\begin{picture}(1,1)
+\ifnum1=#1\put(.5,.35){\circle{1}}\else
+\ifnum2=#1\put(.5,.35){\circle{1}}\put(.5,.35){\circle*{0.4}}\else
+\ifnum3=#1\put(.5,.35){\circle{1}}\put(.5,.35){\circle*{0.7}}\else
+\ifnum4=#1\put(.5,.35){\circle*{1}}\fi\fi\fi\fi
+\end{picture}}
+
+
+
+\captionsetup{labelfont=bf}
+\graphicspath{{./images}}
+\newcommand{\fr}{%
+  \ifmmode
+    \mathbin{\raisebox{0.2ex}{\scalebox{0.7}[0.7]{$\sim$}}}\hspace{-0.1em}%
+  \else
+    \raisebox{0.2ex}{\scalebox{0.7}[0.7]{$\sim$}}%
+  \fi
+}
+\newcommand{\expon}{%
+  \ifmmode
+    \hat{}%
+  \else
+    \raisebox{-0.3ex}{\texttt{\char94}}%
+  \fi
+}
+
+
+% Define theorem-like environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{Example}{Example}
+
+\setlength {\marginparwidth }{2cm}
+
+\begin{document}
+\begin{titlepage}
+\newgeometry{left=20mm, right=20mm, top=20mm, bottom=20mm}
+
+\begin{center}
+\begin{figure}
+    \centering
+	\includegraphics[width=0.25\textwidth]{Figures/logo_units.jpg}
+\end{figure}
+
+\large{\bf UNIVERSIT\`A DEGLI STUDI DI TRIESTE}\\
+\rule[0.2cm]{10cm}{0.4mm} \\
+\end{center}
+\begin{center}
+    \large{DIPARTIMENTO MATEMATICA, INFORMATICA E GEOSCIENZE}\\
+    \vspace{4mm}
+    \large{ MASTER'S DEGREE DATA SCIENCE AND SCIENTIFIC COMPUTING}\\
+    \vspace{20mm}
+    \Large{MASTER'S THESIS}\\
+    \vspace{10mm}
+    \Large{\bf Integrating Large Language Models And Formal Verification For Automated Cryptographic Protocol Vulnerability Detection}
+	\vspace{5mm}	
+\end{center}
+\vspace{30mm}
+\par
+\noindent
+\begin{minipage}[t]{0.55\textwidth}
+{\large{\bf SUPERVISOR\\ Prof. Alberto Cazzaniga\\
+}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}\raggedleft
+{\large{\bf CANDIDATE\\
+Cristian Curaba}}
+\end{minipage}
+\vspace{15mm}
+\begin{center}
+\rule[0.3cm]{10cm}{0.4mm} \\
+{\large{\bf Academic Year 2023/2024}}
+\end{center}
+\end{titlepage}
+
+
+\restoregeometry
+\newpage
+\clearpage
+\thispagestyle{empty}
+\
+\newpage
+
+\chapter*{Abstract}
+\thispagestyle{empty}
+  Cryptographic protocols play a fundamental role in modern digital infrastructures, but they are often deployed without formal verification, leaving systems vulnerable. Formal verification methods, while rigorous, are often complex and time-consuming, leading to a gap in their practical application. In this thesis, we introduce an automated benchmark to assess the ability of Large Language Models (LLMs) to identify vulnerabilities in cryptographic protocols. We propose a validated dataset of novel flawed cryptographic protocols and we design a method to validate the results automatically. Additionally, we implemented a cutting-edge LLM-based agent, leveraging state-of-the-art prompting and scaffolding techniques. The agent's primary objective is to leverage Tamarin, a symbolic model checker designed for Cryptographic protocols. This integration bridges the gap between natural language processing and formal verification, allowing for more comprehensive and efficient protocol analysis. Our results indicate that the LLMs have a limited understanding of semantics, making it unreliable for independently completing the complex, multi-step task. However, the synergy between AI and symbolic reasoning in cybersecurity may offer new potential for defensive applications, with this research providing key insights into future cyberdefense tools that combine the strengths of both approaches\footnote{Project Repository: \url{https://github.com/Cristian-Curaba/CryptoFormalEval}.}.
+
+\newpage
+
+\chapter*{Abstract}
+I protocolli crittografici svolgono un ruolo fondamentale nelle infrastrutture digitali moderne, ma sono spesso implementati senza una verifica formale, lasciando i sistemi vulnerabili. I metodi di verifica formale, sebbene rigorosi, sono spesso complessi e richiedono molto tempo, portando a un divario nella loro applicazione pratica. In questa tesi, introduciamo un benchmark automatizzato per valutare la capacità dei modelli linguistici di grandi dimensioni (LLM) di identificare vulnerabilità nei protocolli crittografici. Proponiamo un dataset validato di nuovi protocolli di comunicazione difettosi e progettiamo un metodo per convalidare i risultati automaticamente. Inoltre, abbiamo implementato un agente all'avanguardia basato su LLM, sfruttando tecniche di prompting e scaffolding allo stato dell'arte. L'obiettivo principale dell'agente è sfruttare Tamarin, un model checker simbolico progettato per i protocolli di comunicazione. Questa integrazione colma il divario tra l'elaborazione del linguaggio naturale e la verifica formale, consentendo un'analisi dei protocolli più completa ed efficiente. I nostri risultati indicano che gli LLM hanno una comprensione limitata della semantica, rendendoli inaffidabili per completare autonomamente il complesso compito. Tuttavia, la sinergia tra l'IA e il ragionamento simbolico nella cybersecurity potrebbe offrire nuove potenzialità per applicazioni defensive. Con questa ricerca forniamo intuizioni per futuri strumenti di difesa informatica che combinano i punti di forza di entrambi gli approcci.
+\thispagestyle{empty}
+
+\newpage 
+
+
+% % Acknowledgements Section
+\section*{Ringraziamenti}
+\thispagestyle{empty}
+È scrivendo queste ultime parole che mi avvio alla conclusione del mio percorso universitario, un cammino ricco di stimoli, sfide e soddisfazioni, reso straordinario dagli affetti che lo hanno accompagnato e sostenuto.
+
+Vorrei innanzitutto ringraziare il prof. Alberto Cazzaniga per il supporto nella realizzazione di questo elaborato. Estendo i ringraziamenti a Natalia Pérez-Campanero Antolín, ricercatrice presso \href{https://www.apartresearch.com/lab}{Apart}, per i suoi contributi preziosi e i feedback puntuali al progetto. Infine, un ringraziamento lo dedico a Denis e Mini per aver condiviso con me tutte le sfide e gli sviluppi di questo intricato progetto. \'E doveroso porgere qualche parola alla Scuola Superiore "Di Toppo Wassermann": questa istituzione, offrendo un ambiente fertile all'apprendimento, è il contesto in cui si sono sviluppati rapporti personali di inestimabile valore. Le collaborazioni con i docenti, frutto della didattica offerta, hanno ampliato e arricchito in modo significativo la mia formazione.
+
+Con la consapevolezza che queste poche parole non potranno rendere pienamente la mia riconoscenza, è con gioia che desidero esprimere gratitudine alle persone a me vicine percorrendo, grossolanamente, il susseguirsi delle diverse fasi nella mia vita.
+Non posso che iniziare dalla famiglia: i miei genitori e mio fratello Marco mi hanno sempre sostenuto con fiducia e orgoglio. Sono davvero felice di avervi accanto.
+
+Il periodo prima delle superiori non mi ha lasciato molti ricordi significativi. Tuttavia, "dedicandomi" alla pallacanestro, ho conosciuto persone ancor'oggi importanti per me: tra tutti il deboluccio Matteo, insieme allo strampalato gruppo che si è formato nei bassifondi di Fontanafredda.
+
+Al liceo una classe, generalmente unita e propositiva, si è formata. Qui sono cresciuto affianco a Giulia, persona sensibile e sagace a cui sono indissolubilmente legato. Tra gli eccezionali insegnanti, voglio esprimere la mia gratitudine ad Enrico, oltre che insegnante, per me è Maestro e amico.
+
+All'università ci ho lasciato il cuore. Nell'ospitale, sfavillante Toppo ho legato con persone eccezionali, origine di felicità degli ultimi anni. L'attaccamento, quasi morboso, per il gruppo formatosi genera una nota amara in questa conclusione. Al fine di evitare una impersonale, lunga lista di nomi mi limito ad esprimere la mia profonda gratitudine a Claudia e Mikkey: seppur in forme diverse, sono le barchette straordinarie con cui navigo questo mare; vi devo tanto. 
+
+\begin{flushright}
+Cristian Curaba \\
+October, 2024
+\end{flushright}
+
+
+\newpage
+\clearpage
+\thispagestyle{empty}
+\
+\newpage
+% \thispagestyle{empty}
+% \epigraph{"By far, the greatest danger of Artificial Intelligence is that people conclude too early that they understand it."}{-- Eliezer Yudkowsky}
+
+
+% Table of Contents
+\clearpage                       % Otherwise \pagestyle affects the previous page.
+{                                % Enclosed in braces so that re-definition is temporary.
+  \pagestyle{empty}              % Removes numbers from middle pages.
+  \fancypagestyle{plain}         % Re-definition removes numbers from first page.
+  {
+    \fancyhf{}%                       % Clear all header and footer fields.
+    \renewcommand{\headrulewidth}{0pt}% Clear rules (remove these two lines if not desired).
+    \renewcommand{\footrulewidth}{0pt}%
+  }
+  \tableofcontents
+  \thispagestyle{empty}          % Removes numbers from last page.
+}
+\newpage
+
+\setcounter{page}{1}
+% Chapters
+\section*{Introduction}
+% Verifying the security properties of Cryptographic protocols is a long-standing challenge in formal methods with significant implications for distributed systems. Cryptographic protocols such as SSH~\cite{ssh} (for secure internet communications), OAuth~\cite{oauth} (for passwordless authentication), and 5G-AKA~\cite{5gaka} (for mobile network authentication) are essential to secure communication. However, despite their complexity, widely used protocols have often been found vulnerable after deployment. One notable case is the \cite{needhamschroeder} authentication protocols, which were discovered to have logical flaws only several years later, highlighting the risks of insufficient validation.
+
+% Formal verification ensures that protocols satisfy specified security properties under a given threat model. However, challenges like infinite state spaces and undecidability often hinder verification techniques, frequently requiring human intervention. As new protocol development accelerates with communication technology advances, there is an increasing need for automated solutions. In this work, we propose to integrate symbolic reasoning tools with LLM-based agents to automate vulnerability detection in cryptographic protocols. The agent is designed to exploit state-of-the-art prompting techniques and is equipped with external tools, \textit{ad-hoc} examples, and a middleware to facilitate the interaction with Tamarin, a symbolic reasoning software.  By combining the adaptive capabilities of LLMs with the rigorous deductive reasoning of formal verification systems, we aim to contribute to this critical cybersecurity challenge.
+
+Verifying the security properties of Cryptographic protocols is a long-standing challenge in formal methods with significant implications for distributed systems. Cryptographic protocols such as SSH~\cite{ssh} (for secure internet communications), OAuth~\cite{oauth} (for passwordless authentication), and 5G-AKA~\cite{5gaka} (for mobile network authentication) are essential to secure communication. However, despite their complexity, widely used protocols have often been found vulnerable after deployment. One notable case is the \cite{needhamschroeder} authentication protocols, which were discovered to have logical flaws only several years later, highlighting the risks of insufficient validation.
+
+Formal verification ensures that protocols satisfy specified security properties under a given threat model like the Dovel-Yao \cite{dolevyao}. However, challenges like infinite state spaces and undecidability often hinder verification techniques, frequently requiring human intervention. As new protocol development accelerates with communication technology advances, there is an increasing need for automated solutions. In this work, we explore the potential of Large Language Models (LLMs) to address these challenges and contribute to the field of cryptographic protocol verification. We introduce an automated benchmark designed to assess the capability of LLMs in identifying vulnerabilities in cryptographic protocols. Our approach combines the power of natural language processing with formal verification techniques, potentially offering a more comprehensive and efficient method for protocol analysis.
+
+In Chapter \ref{chap:protocol_tamarin}, we lay the theoretical foundations for our work. We begin by introducing the concept of security protocols and our notation for expressing message exchanges (Section \ref{sec:securityprotocols}). This is followed by a discussion on formal verification (Section \ref{sec:formalverification}), where we outline the four primary methods implemented in computer science: simulation, testing, deductive verification, and model checking. We then introduce the Tamarin Prover (Section \ref{sec:tamarinprover}), a powerful tool for symbolic verification of cryptographic protocols. We detail its functionality, syntax, and semantics, providing a comprehensive overview of its capabilities and underlying formalism.
+
+Chapter \ref{chap:llm_agent} delves into the world of Large Language Models and their applications in problem-solving. We explore advanced techniques for harnessing LLMs' reasoning abilities through prompt engineering (Section \ref{sec:effectiveprompts}) and introduce concepts for developing problem-solving agents using LLMs as a core component (Section \ref{sec:llmbasedagent}). We also discuss best practices for evaluating LLMs (Section \ref{sec:evaluatingllm}), emphasizing the proprieties required for a genuine, future-proof and effective evaluation.
+
+In Chapter 3, we present our novel benchmark pipeline designed to evaluate AI agents' capabilities in identifying vulnerabilities in unseen protocols (Section \ref{sec:benchmarkpipeline}). This pipeline mimics a realistic cybersecurity audit, providing LLMs with tools and information comparable to those available to security researchers. We detail our dataset generation process (Section \ref{sec:datasetgeneration}), which prioritizes qualitative insights into LLMs' maximal capabilities over quantitative statistics.
+
+We then introduce our LLM-based architecture, CryptoFormaLLM (Section \ref{sec:cryptoformallm}), designed to automate formal verification and vulnerability analysis of cryptographic protocols through iterative interaction with the Tamarin Prover. This section outlines the architecture's primary functions and approach to generating clear, human-readable attack descriptions.
+
+Our results (Section \ref{sec:results}) indicate that while modern LLMs demonstrate impressive coding capabilities, they struggle with niche problems like those encountered in cryptographic protocol verification. Their performance is susceptible to prompt phrasing, and their limited grasp of underlying semantics renders them unreliable for complex, multi-step tasks in this domain.
+
+Finally, we discuss the ethical implications of our research (Section \ref{sec:ethicalimplications}), emphasizing the potential disruptive capabilities of future LLM-powered systems in complex cybersecurity tasks while exploring the integration of AI with formal verification methods for enhanced cyberdefense.
+
+As we continue to navigate the complex landscape of digital security, the synergy between AI and symbolic reasoning offers promising solutions to challenges in protocol verification. This thesis aims to shed light on these possibilities, paving the way for more robust, efficient, and automated approaches to ensuring the security of our digital communications infrastructure.
+\chapter{Cryptographic protocols and Symbolic Verification}
+\label{chap:protocol_tamarin}
+\input{chapters/protocol_tamarin.tex}
+
+\chapter{LLM-based Agent}
+\label{chap:llm_agent}
+\input{chapters/llm_agent.tex}
+
+\chapter{Project}
+\label{chap:project}
+\input{chapters/project.tex}
+
+\section*{Conclusions}
+
+In this thesis, we presented the design of a benchmark to evaluate the capabilities of modern AI-based agents in identifying security vulnerabilities in previously unseen cryptographic schemes through external symbolic reasoning. This work represents the first attempt at investigating the combination of AI techniques with symbolic reasoning in the field of formal verification of security protocols. Our attempts show that current frontier models are not capable of completing the task consistently and autonomously. However, by leveraging the inductive knowledge of LLMs alongside the proven correctness of formal verification techniques, we could potentially develop highly automated tools to assist researchers in validating new cryptographic schemes.
+
+\paragraph{Future Directions}
+
+Given its niche nature, this area is underrepresented in current training datasets, thus accurate assessments of the state of the art agents' performances can be obtained only through extensive testing with advanced prompting and scaffolding techniques, which require significant time and computational resources.
+
+Additionally, it could be valuable to explore some variations of our benchmark to assess how LLMs can leverage external reasoning systems. In particular, some reasonable alternatives or updates may include:
+
+\begin{itemize}
+    \item Incorporating a different symbolic software.
+    \item Widen the variability of the dataset by including valid properties (which are harder to test automatically) and protocols from a different context like blockchains.
+    \item Using a dataset of examples described in natural language, with non-standardized details and additional assumptions (e.g., declaring a variable as a timestamp, or considering a channel as secure). The main issue here is to remove, reliably, subtle ambiguities.
+    \item Requiring the AI to iteratively synthesize a new security protocol given a precise specification, using a bounded model checker as an evaluator to provide automated feedback.
+    \item Test different agent architectures, prompts, and action modules.
+\end{itemize}
+% References
+\bibliographystyle{plain}
+\bibliography{references}
+
+% Appendices
+\newpage
+\appendix
+\label{chap:appendix_a}
+\input{appendices/appendix_a.tex}
+\input{appendices/appendix_b}
+\input{appendices/appendix_c}
+
+\end{document}

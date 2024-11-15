@@ -1,0 +1,774 @@
+\section{Triggering Reasoning Techniques By Solving the 24-Game}
+
+This experiment aims to evaluate various prompting strategies with a Large Language Model (LLM) to solve the "24-Game", a mathematical puzzle that requires using four integers and basic arithmetic operations to achieve the result of 24. The experiment leverages different prompting techniques to guide the LLM towards generating solutions and evaluates the effectiveness of each approach: direct prompt, chain-of-thought, tree-of-thought and meta-prompt.
+
+The model \texttt{gpt-4o-mini-2024-07-18}, with training data up to Sep 2021, led to no solutions. We, therefore, tried the model \texttt{gpt-4-turbo-2024-04-09} with specified \texttt{Temperature=0}. The input data is `[2, 3, 8, 13]` and the correct solutions are 
+\begin{align*}
+&(2 * (3 + 13)) - 8 \\
+&(2 * (13 + 3)) - 8 \\
+&((3 + 13) * 2) - 8 \\
+&((13 + 3) * 2) - 8 \\
+\end{align*}
+
+However, even if the expected reasoning is obtained, no correct solutions have been correctly detected. By looking at the examples provided below, the initial prompt makes the llm "reasons" differently, and even if the results are wretched in all cases, in the meta-prompting technique some partially good results can be found.
+
+Here is the common \textit{system prompt}: 
+\begin{small}\begin{spverbatim}
+You are a math expert in Game 24.
+The Game of 24 is an arithmetical puzzle that revolves around the challenge of
+manipulating four integers, usually as a result of four randomly drawn cards from a standard deck, with the ultimate goal of reaching a total of 24. To achieve this, you can employ a combination of addition (+),
+subtraction (-), multiplication (×), and division (÷) operations. You have to use all and only the numbers 2, 3, 8, 13.
+\end{spverbatim}\end{small}
+
+In the next pages, we write down an example of each prompt technique.
+
+\paragraph{Direct approach:}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 10.
+\end{itemize}
+Comments: it hallucinates and starts to repeat itself periodically. The incorrect answers are due to the same expressions.
+
+\begin{dialogue}
+\speak{Q}  \begin{small}\begin{spverbatim}List all possible solutions to this game. \end{spverbatim}\end{small}
+\speak{A} \begin{small}\begin{spverbatim}
+To solve the Game of 24 using the numbers [2, 3, 8, 13], we need to find combinations of these numbers using addition, subtraction, multiplication, and division to reach a total of 24. Here are some possible solutions:
+
+1. **(13 - 8) × (3 + 2) = 5 × 5 = 25**
+   - This solution is close but not exactly 24. We need to adjust.
+2. **(13 × 2) - (8 × 3) = 26 - 24 = 2**
+   - Again, this is close but not exactly 24. Let's try another combination.
+3. **(13 + 3 - 8) × 2 = 8 × 2 = 16**
+   - Still not 24. We need to keep looking for the right combination.
+4. **(13 × 2) - (8 - 3) = 26 - 5 = 21**
+   - This is also not 24. Let's try using division or a different arrangement.
+5. **(13 - 3) × 2 + 8 = 10 × 2 + 8 = 20 + 8 = 28**
+   - This exceeds 24. We need to adjust the operations or the order.
+6. **(13 + 8) - (3 × 2) = 21 - 6 = 15**
+   - Still not 24. Let's try more combinations.
+7. **(13 × 2) - 8 ÷ 2 = 26 - 4 = 22**
+   - Close, but not exactly 24.
+8. **(13 - 2) × (8 ÷ 3) = 11 × (8 ÷ 3) = 11 × 2.67 = 29.37**
+   - This is not 24 and involves a non-integer result.
+9. **(13 × 2) + (8 ÷ (3 - 2)) = 26 + 8 = 34**
+   - This exceeds 24.
+10. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+    - Still not 24.
+11. **(13 + 8 + 3) - 2 = 24**
+    - This is a correct solution! We've reached 24.
+12. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+    - This is not 24.
+13. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+    - This is not 24.
+14. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+15. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+    - This exceeds 24.
+16. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+    - This is not 24.
+17. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+    - This is not 24 and involves a non-integer result.
+18. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+    - This is not 24.
+19. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+    - This is not 24.
+20. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+21. **(13 + 8 + 3) - 2 = 24**
+    - This is a correct solution! We've reached 24.
+22. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+    - This is not 24.
+23. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+    - This is not 24.
+24. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+25. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+    - This exceeds 24.
+26. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+    - This is not 24.
+27. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+    - This is not 24 and involves a non-integer result.
+28. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+    - This is not 24.
+29. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+    - This is not 24.
+30. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+31. **(13 + 8 + 3) - 2 = 24**
+    - This is a correct solution! We've reached 24.
+32. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+    - This is not 24.
+33. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+    - This is not 24.
+34. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+35. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+    - This exceeds 24.
+36. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+    - This is not 24.
+37. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+    - This is not 24 and involves a non-integer result.
+38. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+    - This is not 24.
+39. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+    - This is not 24.
+40. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+41. **(13 + 8 + 3) - 2 = 24**
+    - This is a correct solution! We've reached 24.
+42. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+    - This is not 24.
+43. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+    - This is not 24.
+44. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+45. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+    - This exceeds 24.
+46. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+    - This is not 24.
+47. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+    - This is not 24 and involves a non-integer result.
+48. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+    - This is not 24.
+49. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+    - This is not 24.
+50. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24
+51. **(13 + 8 + 3) - 2 = 24**
+    - This is a correct solution! We've reached 24.
+52. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+    - This is not 24.
+53. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+    - This is not 24.
+54. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+    - This exceeds 24.
+55. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+    - This exceeds 24.
+56. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+    - This is not 24.
+57. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+    - This is not 24 and involves a non-integer result.
+58. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+    - This is not 24.
+59. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+    - This is not 24.
+[...]
+\end{spverbatim}\end{small}
+\end{dialogue}
+% 60. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 61. **(13 + 8 + 3) - 2 = 24**
+%     - This is a correct solution! We've reached 24.
+% 62. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+%     - This is not 24.
+% 63. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+%     - This is not 24.
+% 64. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 65. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+%     - This exceeds 24.
+% 66. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+%     - This is not 24.
+% 67. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+%     - This is not 24 and involves a non-integer result.
+% 68. **(13 + 8) × (3  2) = 21 × 1 = 21**
+%     - This is not 24.
+% 69. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+%     - This is not 24.
+% 70. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 71. **(13 + 8 + 3) - 2 = 24**
+%     - This is a correct solution! We've reached 24.
+% 72. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+%     - This is not 24.
+% 73. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+%     - This is not 24.
+% 74. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 75. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+%     - This exceeds 24.
+% 76. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+%     - This is not 24.
+% 77. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+%     - This is not 24 and involves a non-integer result.
+% 78. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+%     - This is not 24.
+% 79. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+%     - This is not 24.
+% 80. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 81. **(13 + 8 + 3) - 2 = 24**
+%     - This is a correct solution! We've reached 24.
+% 82. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+%     - This is not 24.
+% 83. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+%     - This is not 24.
+% 84. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 85. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+%     - This exceeds 24.
+% 86. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+%     - This is not 24.
+% 87. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+%     - This is not 24 and involves a non-integer result.
+% 88. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+%     - This is not 24.
+% 89. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+%     - This is not 24.
+% 90. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 91. **(13 + 8 + 3) - 2 = 24**
+%     - This is a correct solution! We've reached 24.
+% 92. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+%     - This is not 24.
+% 93. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+%     - This is not 24.
+% 94. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 95. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+%     - This exceeds 24.
+% 96. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+%     - This is not 24.
+% 97. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.33**
+%     - This is not 24 and involves a non-integer result.
+% 98. **(13 + 8) × (3 - 2) = 21 × 1 = 21**
+%     - This is not 24.
+% 99. **(13 + 8) ÷ (3 - 2) = 21 ÷ 1 = 21**
+%     - This is not 24.
+% 100. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 101. **(13 + 8 + 3) - 2 = 24**
+%     - This is a correct solution! We've reached 24.
+% 102. **(13 × 2) - (8 + 3) = 26 - 11 = 15**
+%     - This is not 24.
+% 103. **(8 × 3) - (13 - 2) = 24 - 11 = 13**
+%     - This is not 24.
+% 104. **(13 × 2) + (8 ÷ 2) - 3 = 26 + 4 - 3 = 27**
+%     - This exceeds 24.
+% 105. **(13 + 8) × 2 - 3 = 42 - 3 = 39**
+%     - This exceeds 24.
+% 106. **(13 + 8) × 2 ÷ 3 = 42 ÷ 3 = 14**
+%     - This is not 24.
+% 107. **(13 × 2 + 8) ÷ 3 = (26 + 8) ÷ 3 = 34 ÷ 3 = 11.
+
+
+\paragraph{Chain-of-thought technique:}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 1.
+\end{itemize}
+Comments: 
+The reasoning is correct, except for one rule.: "You have to use \emph{all} and only the numbers 2, 3, 8, 13".
+
+\begin{dialogue}
+\speak{Q} \begin{small}\begin{spverbatim} Let's list all possible solution to this game 24-game. Start by breaking down the problem step by step, considering possible operations and intermediate results. \end{spverbatim}\end{small}
+
+
+\speak{A} \begin{small}\begin{spverbatim} To solve the 24 Game with the numbers [2, 3, 8, 13], we need to find a way to use each number exactly once, applying any of the operations (addition,
+subtraction, multiplication, division) to reach a total of 24. Let's explore different combinations and operations: 
+
+ Step 1: Consider Possible Pairings and Operations
+We start by examining potential pairings of the numbers and the results of various operations on each pair. This helps in narrowing down the paths that might lead to 24.
+
+ Pairings and Initial Calculations:
+1. **(2, 3)**: 
+   - Addition: 2 + 3 = 5
+   - Subtraction: 2 - 3 = -1 or 3 - 2 = 1
+   - Multiplication: 2 × 3 = 6
+   - Division: 2 ÷ 3 = 0.67 or 3 ÷ 2 = 1.5
+2. **(2, 8)**:
+   - Addition: 2 + 8 = 10
+   - Subtraction: 2 - 8 = -6 or 8 - 2 = 6
+   - Multiplication: 2 × 8 = 16
+   - Division: 2 ÷ 8 = 0.25 or 8 ÷ 2 = 4
+3. **(2, 13)**:
+   - Addition: 2 + 13 = 15
+   - Subtraction: 2 - 13 = -11 or 13 - 2 = 11
+   - Multiplication: 2 × 13 = 26
+   - Division: 2 ÷ 13 = 0.154 or 13 ÷ 2 = 6.5
+4. **(3, 8)**:
+   - Addition: 3 + 8 = 11
+   - Subtraction: 3 - 8 = -5 or 8 - 3 = 5
+   - Multiplication: 3 × 8 = 24 (Solution found directly)
+   - Division: 3 ÷ 8 = 0.375 or 8 ÷ 3 = 2.67
+5. **(3, 13)**:
+   - Addition: 3 + 13 = 16
+   - Subtraction: 3 - 13 = -10 or 13 - 3 = 10
+   - Multiplication: 3 × 13 = 39
+   - Division: 3 ÷ 13 = 0.231 or 13 ÷ 3 = 4.33
+6. **(8, 13)**:
+   - Addition: 8 + 13 = 21
+   - Subtraction: 8 - 13 = -5 or 13 - 8 = 5
+   - Multiplication: 8 × 13 = 104
+   - Division: 8 ÷ 13 = 0.615 or 13 ÷ 8 = 1.625
+
+ Step 2: Explore Further Combinations
+From the initial calculations, we see that multiplying 3 and 8 directly gives us 24. Let's see if there are other ways to use all four numbers to reach 24.
+
+ Exploring with Multiplication of 3 and 8:
+- **3 × 8 = 24**
+- Use remaining numbers: 2 and 13
+- Any operation with these won't affect the result as 24 is already achieved.
+
+ Conclusion:
+The direct multiplication of 3 and 8 gives us 24, and using the remaining numbers (2 and 13) in any operation alongside this result doesn't provide a new way to reach 24 without exceeding the use of any number more than once. Thus, the solution to this set of numbers for the 24 Game is:
+- **3 × 8 = 24**
+
+This appears to be the only straightforward solution with the given numbers without further complex manipulations or redundancies.
+\end{spverbatim}\end{small}
+\end{dialogue}
+
+\paragraph{Tree-of-thought}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 1.
+\end{itemize}
+Comments: The reasoning is correct, except for one rule.: "You have to use \emph{all} and only the numbers 2, 3, 8, 13". 
+
+\begin{dialogue}
+\speak{Q} 
+\begin{small}\begin{spverbatim}
+Let's explore multiple ways to solve the 24-game. For each approach, try different operations and paths, and then choose the combinations which are solution.
+\end{spverbatim}\end{small}
+\speak{A}
+\begin{small}\begin{spverbatim}
+To solve the 24 game using the numbers [2, 3, 8, 13], we need to find a way to use each number exactly once with any combination of the four basic arithmetic operations (addition, subtraction, multiplication, and division) to reach a total of 24. Here are a few different approaches:
+
+ Approach 1: Using Multiplication and Addition
+1. Multiply 8 by 3 to get 24 (8 × 3 = 24).
+2. Add 13 to 2 to get 15 (13 + 2 = 15).
+3. Subtract the result of step 2 from step 1 (24 - 15 = 9).
+4. This approach does not work as it does not reach 24.
+
+ Approach 2: Using Division and Addition
+1. Subtract 2 from 13 to get 11 (13 - 2 = 11).
+2. Multiply 11 by 3 to get 33 (11 × 3 = 33).
+3. Subtract 8 from the result of step 2 to get 25 (33 - 8 = 25).
+4. This approach also does not work as it does not reach 24.
+
+ Approach 3: Using Multiplication, Addition, and Division
+1. Multiply 2 by 3 to get 6 (2 × 3 = 6).
+2. Add 13 to 8 to get 21 (13 + 8 = 21).
+3. Add the results of step 1 and step 2 to get 27 (6 + 21 = 27).
+4. This approach does not work as it does not reach 24.
+
+ Approach 4: Using Multiplication, Subtraction, and Division
+1. Multiply 8 by 3 to get 24 (8 × 3 = 24).
+2. Divide 13 by 2 to get 6.5 (13 ÷ 2 = 6.5).
+3. Subtract 6.5 from 24 to get 17.5 (24 - 6.5 = 17.5).
+4. This approach does not work as it does not reach 24.
+
+ Approach 5: Using Multiplication, Addition, and Subtraction
+1. Multiply 8 by 3 to get 24 (8 × 3 = 24).
+2. Subtract 13 from 2 to get -11 (2 - 13 = -11).
+3. Add 24 to -11 to get 13 (24 + (-11) = 13).
+4. This approach does not work as it does not reach 24.
+
+ Approach 6: Correct Solution
+1. Multiply 8 by 3 to get 24 (8 × 3 = 24).
+2. Subtract 13 from 13 to get 0 (13 - 13 = 0).
+3. Add 24 to 0 to get 24 (24 + 0 = 24).
+4. This approach works and reaches 24.
+
+ Conclusion
+The correct solution among the approaches is Approach 6, where you multiply 8 by 3 to get 24, and then effectively ignore the other numbers by subtracting 13 from 13 to maintain the total of 24. This is a valid solution as it uses each number exactly once and employs the allowed operations to reach the target number 24.
+\end{spverbatim}\end{small}
+\end{dialogue}
+
+\paragraph{Meta-prompting}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 2.
+\end{itemize}
+\begin{dialogue}
+\speak{Q} 
+\begin{small}\begin{spverbatim}
+Execute the following solution structure: 1. Start with: 'Let’s take a wide breath and reason step by step'. 2. Resolve all operations that involve only two numbers. 3. Resolve any operations that involve three of the four numbers. 4. Identify a solution that involves all and only the four numbers. Conclude by stating 'The solutions are:' and list the correct combinations. 
+\end{spverbatim}\end{small}
+\speak{A}
+\begin{small}\begin{spverbatim}
+Let's take a wide breath and reason step by step.
+
+1. **Start with the numbers: 2, 3, 8, 13.**
+
+2. **Resolve all operations that involve only two numbers:**
+   - We can look at simple combinations and their results:
+     - \( 8 \times 3 = 24 \)
+     - \( 13 + 3 = 16 \)
+     - \( 13 - 2 = 11 \)
+     - \( 8 \div 2 = 4 \)
+     - \( 2 \times 3 = 6 \)
+
+3. **Resolve any operations that involve three of the four numbers:**
+   - Using the results from the two-number operations:
+     - \( (13 - 2) \times 2 = 11 \times 2 = 22 \)
+     - \( (8 \div 2) \times 3 = 4 \times 3 = 12 \)
+     - \( (13 + 3) - 8 = 16 - 8 = 8 \)
+     - \( (8 \times 3) - 13 = 24 - 13 = 11 \)
+
+4. **Identify a solution that involves all and only the four numbers:**
+   - We can use the combination:
+     - \( 8 \times (13 - 11) = 8 \times 2 = 16 \)
+     - \( 16 + 8 = 24 \)
+   - To achieve this, we need to use all four numbers:
+     - \( 8 \times (13 - (3 \times 2)) = 8 \times (13 - 6) = 8 \times 7 = 56 \)
+     \( 56 \div (8 \div 2) = 56 \div 4 = 14 \) (This does not work, but it's a good attempt.)
+   - Correct approach:
+     - \( (13 - 2) \times 2 + 3 = 11 \times 2 + 3 = 22 + 3 = 25 \) (Close, but not 24.)
+     - \( (13 - 3) \times 2 = 10 \times 2 = 20 \), then \( 20 + 8 - 2 \times 2 = 20 + 8 - 4 = 24 \)
+
+The solutions are:
+- \( (13 - 3) \times 2 + 8 - 2 \times 2 = 24 \)
+\end{spverbatim}\end{small}
+\end{dialogue}
+
+
+
+\begin{comment}
+    
+\paragraph{Direct approach:}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 0.
+\end{itemize}
+
+\begin{dialogue}
+\speak{Q} List all possible solutions to this game.
+\speak{A} To find all possible solutions to reach 24 using the numbers 2, 3, 8, and 13 with any combination of the operations +, -, ×, and ÷, we can examine various combinations and order of operations. Here’s a way to arrive at the solution systematically:
+
+1. **Permutations of the numbers**: All unique arrangements of the numbers 2, 3, 8, and 13 need to be tested.
+2. **Possible operations**: Try different combinations and placements of the four basic arithmetic operations.
+3. **Use of parentheses**: Different placements of parentheses to manage order of operations.
+
+After testing these combinations, we find the following solutions:
+
+1. \( (13 - 8) \times 3 \times 2 = 5 \times 3 \times 2 = 30 \) (which doesn’t work)
+   
+2. \( 8 \times (3 - (13 - 2)) = 8 \times (3 - 11) = 8 \times -8 = -64\) (also doesn’t work).
+   
+After testing many possible combinations and recognizing the constraint that we must hit 24 exactly:
+
+1. **First working solution**:
+   \[
+   8 \times 3 = 24 
+   \]
+   so simply using:
+   \[
+   8 \times 3 - (13 - 2) = 24-11 = 13 (which doesn't work).
+   \]
+
+2. **Another working solution**:
+   \[
+   (13 - 3) \times 2 + 8 = 10 \times 2 + 8 = 20 + 8 = 28 (doesn't work).
+   \]
+
+However, after comprehensive trial and error methods, we find a solution that accurately reaches 24.
+ 
+1. **The correct solution**:
+   
+  \[
+   (13 - (2 + 3)) \times 8 
+  \]
+And check if it works:
+1. **Final Combination**:
+   \[
+   (8 - 2) \times 3 = 6 \times 3 = 18 (doesn't work).
+   \]
+
+2. **Working Structure**:
+3.
+  \[
+   (3 \times 8) - 4 = 24 (wrong number) 
+  \]
+
+After testing thoroughly through these combinations, examining all characteristic permutations, we achieve:
+
+Here’s a succinct and single working solution that successfully hits the target of 24:
+
+1. **Final solution**:
+   \[
+   (2 \times 13) - (3 \times 8) = 26 - 24  = 2 (not accepted).
+   \]
+The final confirmed workable solution is determined through successful testing and verification is:
+
+Thus far, the ultimate solutions are zero should b reviewed meticulously however:
+
+1. **(13 - 2) x 3 = 32** thus hitting the limit without devious iterations.
+
+Submissions are going to be highlighted through diligence through arithmetic analysis.
+
+**Conclusion**:
+The only pairs are through direct arithmetic compositions yielding **Target value: 24 through non-completed brackets arbitrarily in students learning from~sample and analysis.** 
+
+Hence, the functioning output should be extended next query through encryption, logistics or peer-assisted learning structures for arithmetic validations.
+
+**Summation** Was exhaustive through number lines however zero outputs did not yield satisfactory solutions except arbitrary or numerically unsupported variables thus additionally needed iterations for completion!
+
+\end{dialogue}
+
+
+\paragraph{Chain-of-thought technique:}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 1.
+\end{itemize}
+\begin{dialogue}
+\speak{Q} Let's list all possible solutions to this game 24-game. Start by breaking down the problem step by step, considering possible operations and intermediate results.
+
+\speak{A} To find the solutions for achieving 24 using the numbers 2, 3, 8, and 13, we'll follow these steps:
+
+1. **Understanding Operations**: We can use addition (+), subtraction (-), multiplication (×), and division (÷). Each of the four numbers must be used exactly once, and we will consider the order of operations.
+
+2. **Possible Combinations**: We can create every possible combination of the four numbers with the operations. In general, there are a few ways to combine operations, often utilizing different operator priorities by grouping operations using parentheses.
+
+3. **Identifying Ways to 24**:
+   - By trying various combinations and calculations, we will evaluate each method to see if they equal 24.
+
+ Possible Solutions:
+
+1. **Combining Multiplication and Addition**:
+    \[
+    8 \times 3 = 24 \quad \text{ and then using 2 and 13 as unused}
+    \]
+   - **Not valid**, since we have to use all numbers.
+
+2. **Using Division Effectively**:
+    - We can try formulations that involve both multiplication and subtraction or division effectively.
+    
+3. **Exploring Different Combinations**:
+    \[
+    (13 - 8) = 5
+    \]
+    \[
+    (5 \times 2) = 10
+    \]
+    \[
+    (10 + 3 = 13) \rightarrow Not valid (Doesn't equal 24)
+    \]
+
+4. **Testing with Different Orders**:
+   - Consider using subtraction before multiplication:
+   - \( (8 - 2) = 6 \)
+   - \( 6 \times 3 \) yields 18, so still not valid. Must play with the order.
+
+ Corrections and Final Validating:
+After testing various combinations manually, we can write down the valid combinations.
+
+1. **Correct Approach**:
+   \[
+   8 \times 3 = 24 \quad \text { (Incorrect because we can’t leave out the other numbers)}
+   \]
+
+ Valid Combinations:
+More combinations to the success, including parentheses for proper precedence included:
+
+1. **Sample Solution**:
+   - A working combination that gives 24 is:
+   \[
+   2 \times (13 - 3) = 2 \times 10 = 20 \quad \text { (Doesn't work)}
+   \]
+  
+After thorough exploration of various possible combinations of the numbers through operator manipulation, where:
+
+\[
+ (3 \times 8) - (2 + 13) = 24
+\]
+   
+Finally, the valid result which leads directly to the solution depends on the arithmetic forms that yield whole numbers that effectively add to 24 using complex operations correctly.
+
+To conclude:
+- **No direct valid solution exists strongly with (2, 3, 8, 13) to equal 24 effectively through common operations without constraints.**
+
+If needed, further breakdown with an algorithmic approach or computational method can enhance the solution mappings for more detailed explorations.
+
+\end{dialogue}
+
+\paragraph{Tree-of-thought}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 1.
+\end{itemize}
+
+\begin{dialogue}
+\speak{Q} 
+Let's explore multiple ways to solve the 24-game. For each approach, try different operations and paths, and then choose the combinations which are solution.
+
+\speak{A} Tree-of-Thought (ToT) Response: Let's explore several ways to reach the total of 24 using the numbers 2, 3, 8, and 13. We'll use the four arithmetic operations: addition (+), subtraction (-), multiplication (×), and division (÷). Each number must be used exactly once.
+
+ Solution 1:
+1. **Multiply 2 and 13**:
+   \[
+   2 \times 13 = 26
+   \]
+   
+2. **Subtract 3 from the result**:
+   \[
+   26 - 3 = 23
+   \]
+
+3. **Add 8 to get 24**:
+   \[
+   23 + 8 = 31 \quad \text{(this doesn't work; try another approach)}
+   \]
+
+ Solution 2:
+1. **Multiply 3 and 8**:
+   \[
+   3 \times 8 = 24
+   \]
+   
+2. **Add 2 and 13, but you won already with the multiplication**:
+   The game ends here and you have reached 24 with only two numbers.
+
+ Solution 3:
+1. **Multiply 8 and 3**:
+   \[
+   8 \times 3 = 24
+   \]
+
+2. **Utilize remaining numbers (2 and 13)**:
+   But you already reached 24, so again you don’t use them.
+
+ Solution 4:
+1. **Add 13 and 2**:
+   \[
+   13 + 2 = 15
+   \]
+
+2. **Multiply the result by 3 and then subtract 3**:
+   \[
+   15 \times 3 = 45
+   \]
+   \[
+   45 - 21 = 24 \quad \text{(Try a less complicated step)}
+   \]
+
+ Solution 5:
+Here’s an effective way accounting each number's use:
+1. **Multiply 8 and 3**:
+   \[
+   8 \times 3 = 24
+   \]
+   
+ Conclusion:
+The best ways to achieve 24 with the numbers 2, 3, 8, and 13 are:
+1. **Multiply 3 and 8**: \(3 \times 8 = 24\)
+
+ Additional Check:
+The only successful solution reached here involved direct multiplication of two of the four numbers, thereby simple methods were more effective. Other combinations of addition or subtraction using all four numbers could lead toward candidates but would not reach the exact integer target of 24 effectively.
+
+Therefore, the main working solution using all four integers cyclically doesn’t achieve 24 effectively without direct multiplication of useful pairs.
+
+Using the numbers adeptly while reaching the target goal of 24 can be a problematically simple arithmetic puzzle.
+\end{dialogue}
+
+\paragraph{Meta-prompting}
+\begin{itemize}
+    \item Correct Answers: 0/4.
+    \item Not Detected Incorrect Answers: 1.
+\end{itemize}
+\begin{dialogue}
+\speak{Q} 
+Solution Structure: 1. Begin the response with 'Let’s think step by step.' 2. Follow with the reasoning steps, ensuring the solution process is broken down clearly and logically. 3. List all possible combinations of the four operations and find the final value. 4. Write 'The solutions are:' and list the correct combinations.
+\speak{A} Let’s think step by step.
+
+To solve the puzzle of reaching the number 24 using the numbers [2, 3, 8, 13], we will apply various combinations of the operations: addition (+), subtraction (-), multiplication (×), and division (÷). We should also remember to use all four numbers exactly once in our expressions.
+
+First, let's explore a few operation combinations step by step:
+
+**Step 1: Multiplication and addition**
+
+1. **Combine 8 and 3 then multiply by 2 and add 13**:
+   \[
+   (8 \times 3) + 2 + 13 = 24 + 2 + 13 = 39 \quad \text{(too high)}
+   \]
+
+2. **Combine 8 and 2 then multiply by 3 and subtract 13**:
+   \[
+   (8 \times 2) \times 3 - 13 = 48 - 13 = 35 \quad \text{(too high)}
+   \]
+
+3. **Combine different multiplications**:
+   \[
+   (2 + 13) \times 3 - 8 = 15 \times 3 - 8 = 45 - 8 = 37 \quad \text{(too high)}
+   \]
+
+4. **Another combination could be using divisions with multiplications**:
+   \[
+   (13 - 8) \times 3 \times 2 = 5 \times 3 \times 2 = 30 \quad \text{(still too high)}
+   \]
+
+**Step 2: Focus on combining and reducing the numbers down**
+Let's employ combinations of subtraction or division to reduce the possible values.
+
+1. Start with a simple multiplication and then reduce:
+   \[
+   (2 \times 13) - (8 - 3) = 26 - 5 = 21 \quad \text{(too low)}
+   \]
+
+2. Or try using division to manipulate higher values:
+   \[
+   (13 - 2) \times (8 - 3) = 11 \times 5 = 55 \quad \text{(too high again)}
+   \]
+
+**Step 3: Finding the right combination**:
+Through trials, finally, we can see a specific structure that fits:
+
+1. **Use division and smaller multiplication**:
+\[
+8 \div (13 - 3) \times 2 = 8 \div 10 \times 2 = 1.6 \quad \text{(too low)}
+\]
+
+2. Placing values strategically:
+One successful combination can be:
+\[
+(2 \times 8) + (13 - 3) = 16 + 10 = 26 \quad \text{(yet, still high)}
+\]
+
+Just manipulating these combinations led us to realize that using the operations correctly gives us some smaller increments.
+
+**Final Valid Combination**:
+After trying multiple combinations, we arrive at a conclusion:
+\[
+(13 - 2) \times 2 + 8 - 3 = 11 \times 2 + 8 - 3 = 22 + 8 - 3 = 27 \quad \text{(observed high)} 
+\]
+
+However, adhering to stepwise applications can give:
+Ultimately, one straightforward approach achieving 24:
+\[
+(3 \times 8) - (13 - 2) = (24) - (11) = 13 \quad \text{(Another off)}
+\]
+
+Upon thorough repetition throughout all trials, let’s conclude viable routes:
+1. \(  (3 \times (8 - (13 - 2)) = 3 \times (8 - 11)= -9 \quad \text{(off)} \)
+2. Eventually realizing to get the right formation connects finding a valid foot forward only sets but repetitions led towards higher reiterations.  
+
+**Final Solutions Found**:
+1. \(2 \times 3 + 8 + 13 - 4 = 24\) yet requires all numbers to remain in a single valid pair.
+  
+The solutions are:
+1. Different trials concluded give multiple higher numbers but fell short at a steady patience. 
+
+I could settle finally using:
+\[
+((3 \times 8) - 2| + 4) = 24
+\]
+
+2. Key variants such proved:
+Through these, finding concluded:
+Despite the attempts for valid expectations intertwined with valid closures.
+
+The solutions are: 
+- The combinations of (3 × 8) + (2 - 4) provided eventually led to proving grounds however reiterate towards calming alignment towards operational reroutes with a conclusion to refine out:
+Focus moves to structures with key drifts alongside.
+
+The point setup finled and washed upon the entries we transgress alongside evident shortfalls in operational expansion leads to explicitly confirm in character numbers.
+\end{dialogue}
+
+Hence, one straightforward solution using basic arithmetic checks through algebraic identities yields \(3 \times 8 = 24\) directly, while the others require intricate rules of precedence which would detract from forming equal operational expressions unless yielding a direct computation.
+Please verify these calculations in any game setting to ensure correctness and applicability!
+
+
+
+
+\end{comment}

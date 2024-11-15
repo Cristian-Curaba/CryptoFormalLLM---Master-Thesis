@@ -1,0 +1,122 @@
+\section{Extracts From The Evaluation Results}
+This appendix section will report some extracts from the evaluation results.
+
+\subsection{Struggling to follow instructions rules}
+\label{Ex:struggling_to_follow_instructions}
+\noindent \textbf{Input:}
+\begin{small}\begin{spverbatim}
+[...]
+## Output Formatting Guidelines:   
+
+- File Overwriting (always in Agent_execution folder):
+    ```shell
+    execute: cat << 'EOF' > Agent_execution/[filename]
+    [file content]
+    EOF
+    ```
+[...]
+\end{spverbatim}\end{small}
+
+The following output is taken from Task 1.2 in the execution of Protocol 2 with core model Claude 3 Haiku. The output format required is not respected (missing "shell" after "```").
+
+\noindent \textbf{Output:}
+\begin{small}\begin{spverbatim}
+[...]
+2. Saving the file:
+   ```
+   cat <<  'EOF' > Agent_execution/protocol.anb
+   Protocol Protocol2:
+
+   Knowledge:
+    [...]
+   EOF
+   ```
+\end{spverbatim}\end{small}
+
+The following output is from Task 1.3 in executing Protocol 3 with core model Claude 3 Haiku. The output format required is not respected (missing "```shell").
+
+\noindent \textbf{Output:}
+\begin{small}\begin{spverbatim}
+    Understood. I will follow a methodical approach to compare and finalize
+    the protocol in Tamarin syntax.
+    execute: cat << 'EOF' > Agent_execution/final_protocol_and_property.spthy
+    theory Protocol3 
+    begin
+    [...]
+    EOF
+\end{spverbatim}\end{small}
+
+
+\subsection{Fixing Vulnerability}
+\label{Ex:fixing_vulnerability}
+Instead of following input instructions, the model plans to fix the protocol vulnerability. This is a behaviour observed in Claude 3.5 Sonnet and Claude 3 Opus.
+
+\noindent \textbf{Input:}
+\begin{small}\begin{spverbatim}
+[...]
+Whenever an attack trace is displayed, you have successfully completed your goal.
+Just copy it in `Agent_execution/TamarinTrace.txt` with the following command and,
+after that, write  **next_step**:
+```shell
+execute: cat << 'EOF' > Agent_execution/TamarinTrace.txt
+[copy here the attack trace]
+EOF
+```                                                                                            
+[...]
+
+==============================================================================                          
+Attack trace for freshness:                                                                             
+Symmetric_key_setup : [ Fr( ~symK ) ] --[  ]->
+[ !Key( $A, $B, ~symK ) ]                                                                    
+Init_Knowledge : [ !Key( $A, $B, ~symK ), Fr( ~M.1 ) ] --[  ]->
+[ St_init_A( $A, $B, ~M.1, ~symK ), St_init_B( $A, $B, ~symK ) ]            
+[...]
+St_msg3_A( $A, $B, ~M, ~N, ~symK ) ]  
+==============================================================================
+[...]              
+\end{spverbatim}\end{small}
+
+The following output is from Task 2.2 executing Protocol 1 with core model Claude 3 opus.
+Here, instead of writing the Tamarin-produced attack trace in the file, it tries to address the vulnerability.
+
+\noindent \textbf{Output:}
+\begin{spverbatim}
+Here is a summary of the analysis and next steps: 
+```summary                                                                                           
+To address this, the protocol needs to be modified to prevent replay attacks and ensure the freshness of messages. Some potential approaches:                                                                                        
+1. Include a fresh nonce from B in the second message that A must echo back in the third message. This would tie the sessions together.                                                                                              
+2. Have both parties contribute fresh randomness that is mixed into the encryption key for each session.                                                                                                                             
+3. Use timestamps or sequence numbers to ensure messages cannot be replayed from old sessions.                             
+```
+**Next step**                                                                                                                     
+\end{spverbatim}
+\vspace{0.5cm}
+A similar behaviour can be drawn also from Protocol 2 execution (Claude 3 opus).
+
+\noindent \textbf{Output:}
+\begin{spverbatim}
+Here is the analysis of the Tamarin feedback and the steps to address the identified issues:
+
+Analysis of Tamarin Feedback:
+1. Tamarin successfully loaded, translated, and analyzed the Protocol2 theory. 
+2. The secrecy lemma was falsified, meaning Tamarin found an attack trace where the secret message M was revealed to the attacker.
+3. The attack trace shows:
+   - The attacker sends the constant 'zero' to B
+   - B responds with the shared key XORed with 'zero', revealing the key to the attacker 
+   - A sends a fresh nonce Na to the attacker
+   - The attacker sends back Na XORed with the compromised shared key
+   - A encrypts the secret M XORed with Na using the compromised key and sends it
+   - The attacker can decrypt this to obtain M XORed with Na, and since it has Na, it can recover M
+
+To fix the protocol and prevent this attack:
+1. In rule B_1, B should not respond to an arbitrary message from the network by XORing it with the shared key. This directly reveals the key.
+2. The protocol should be redesigned with proper authentication of the messages, for example using a challenge-response with the nonces.
+3. The encryption of M should not be done by XORing it with the nonce, as this allows the attacker to cancel out the nonce if it can learn it.
+
+Here are the changes made to the theory file to implement these fixes:
+
+```shell
+execute: cat << 'EOF' > Agent_execution/final_protocol_and_property.spthy
+theory Protocol2
+[...]
+\end{spverbatim}
